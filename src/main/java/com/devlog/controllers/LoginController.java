@@ -25,6 +25,7 @@ public class LoginController {
     }
     @PostMapping("/user")
     public String getUser(@RequestBody String token) throws URISyntaxException, IOException, InterruptedException {
+        log.info("gotto here");
        return login.getUserId(token);
     }
 

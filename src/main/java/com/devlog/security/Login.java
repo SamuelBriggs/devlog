@@ -30,6 +30,7 @@ public class Login {
     }
 
     public String getAccessToken(String code) throws URISyntaxException, IOException, InterruptedException {
+        log.info(code + "get code");
         String baseUrl = "https://github.com/login/oauth/access_token";
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put("client_id", client_id);
@@ -47,11 +48,14 @@ public class Login {
                 .uri(uri).GET()// Change method here if not a GET request
                 .build();
        var res = sendRequest(request);
+       log.info("loging res" + res.body());
       JSONObject object = parseToJsonObject(res.body());
+      log.info("object", object);
        return object.getString("access_token");
     }
 
     public String getUserId(String token) throws URISyntaxException, IOException, InterruptedException {
+        log.info(" this is token " + token);
         String baseUrl = "https://api.github.com/user";
         HttpRequest request = HttpRequest.newBuilder().
                 header("Authorization", "Bearer " + token).uri(new URI(baseUrl)).build();
