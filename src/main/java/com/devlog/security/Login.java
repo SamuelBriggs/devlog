@@ -30,14 +30,12 @@ public class Login {
     }
 
     public String getAccessToken(String code) throws URISyntaxException, IOException, InterruptedException {
-        log.info(code + "get code");
         String baseUrl = "https://github.com/login/oauth/access_token";
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put("client_id", client_id);
         queryParams.put("client_secret", client_secret);
         queryParams.put("code", code);
         queryParams.put("redirect_uri", "http://localhost:3001/loginRedirect");
-       // queryParams.put("state", state);
         StringBuilder queryParamsString = new StringBuilder("?");
         for (Map.Entry<String, String> entry : queryParams.entrySet()) {
             queryParamsString.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
@@ -45,23 +43,20 @@ public class Login {
         String finalQueryParams = queryParamsString.substring(0, queryParamsString.length() - 1);
         URI uri = new URI(baseUrl + finalQueryParams);
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(uri).GET()// Change method here if not a GET request
+                .uri(uri).GET()
                 .build();
        var res = sendRequest(request);
-       log.info("loging res" + res.body());
       JSONObject object = parseToJsonObject(res.body());
-      log.info("object", object);
-       return object.getString("access_token");
+       String token =  object.getString("access_token");
+      return getUserId(token);
     }
 
-    public String getUserId(String token) throws URISyntaxException, IOException, InterruptedException {
-        log.info(" this is token " + token);
+    public static String getUserId(String token) throws URISyntaxException, IOException, InterruptedException {
         String baseUrl = "https://api.github.com/user";
         HttpRequest request = HttpRequest.newBuilder().
                 header("Authorization", "Bearer " + token).uri(new URI(baseUrl)).build();
                 var res = sendRequest(request);
                 JSONObject object = new JSONObject(res.body());
-                log.info(object + "this is object");
         return object.getString("repos_url");
     }
 
