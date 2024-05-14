@@ -1,5 +1,9 @@
 package com.devlog.security;
 
+import com.devlog.models.Dev;
+import com.devlog.repositories.DevRepository;
+import com.devlog.services.Cache.RedisService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -14,8 +18,11 @@ import java.util.HashMap;
 import java.util.Map;
 @Slf4j
 @Service
+@AllArgsConstructor
 public class Login {
 
+    private DevRepository devRepository;
+    private RedisService redisService;
     static String client_id = "Iv1.ace15a716c5abb2a";
     static String client_secret = "9825b3e733f6a98e9cbfb5724d9b71407beb2e95";
 
@@ -35,7 +42,7 @@ public class Login {
         queryParams.put("client_id", client_id);
         queryParams.put("client_secret", client_secret);
         queryParams.put("code", code);
-        queryParams.put("redirect_uri", "http://localhost:3001/loginRedirect");
+        queryParams.put("redirect_uri", "http://localhost:3000/loginRedirect");
         StringBuilder queryParamsString = new StringBuilder("?");
         for (Map.Entry<String, String> entry : queryParams.entrySet()) {
             queryParamsString.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
@@ -47,7 +54,13 @@ public class Login {
                 .build();
        var res = sendRequest(request);
       JSONObject object = parseToJsonObject(res.body());
+      log.info("This is object " + object );
        String token =  object.getString("access_token");
+       String refreshToken = object.getString("refresh_token");
+       Dev dev = new Dev();
+       dev.setAccessToken(token);
+       devRepository.save(dev);
+
       return getUserId(token);
     }
 
@@ -57,6 +70,7 @@ public class Login {
                 header("Authorization", "Bearer " + token).uri(new URI(baseUrl)).build();
                 var res = sendRequest(request);
                 JSONObject object = new JSONObject(res.body());
+                log.info(object + "toString");
         return object.getString("repos_url");
     }
 

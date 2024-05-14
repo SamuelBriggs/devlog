@@ -21,12 +21,13 @@ public class LoginController {
     @PostMapping("/getCode")
     public String getCode(@RequestBody String code) throws URISyntaxException, IOException, InterruptedException {
         log.info("It got here");
+        log.info("{} maybe idk", login.getAccessToken(code));
         return login.getAccessToken(code);
     }
     @PostMapping("/user")
     public String getUser(@RequestBody String token) throws URISyntaxException, IOException, InterruptedException {
-        log.info("gotto here");
-       return login.getUserId(token);
+        log.info("got to here");
+       return Login.getUserId(token);
     }
 
 }
